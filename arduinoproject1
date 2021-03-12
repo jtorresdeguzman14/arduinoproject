@@ -1,0 +1,692 @@
+//====================
+//      SENSOR
+//====================
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+LiquidCrystal_I2C lcd (0x3F, 16,2);
+#define S0 33
+#define S1 2
+#define S2 3
+#define S3 30
+#define sensorOut 32
+
+int red = 0;
+int green = 0;
+int blue = 0;
+
+int red1 = 0;
+int green1 = 0;
+int blue1 = 0;
+
+int red2 = 0;
+int green2 = 0;
+int blue2 = 0;
+
+int red3 = 0;
+int green3 = 0;
+int blue3 = 0;
+
+int red4 = 0;
+int green4 = 0;
+int blue4 = 0;
+
+int red5 = 0;
+int green5 = 0;
+int blue5 = 0;
+
+int red6 = 0;
+int green6 = 0;
+int blue6 = 0;
+
+int red7 = 0;
+int green7 = 0;
+int blue7 = 0;
+
+int redAve = 0;
+int greenAve = 0;
+int blueAve = 0;
+
+//====================
+//    STEPPER MOTOR
+//====================
+
+#include <Stepper.h>
+
+const int angle = 360;
+
+Stepper myStepper(angle, 34,9,10,11);     //IN1, IN2, IN3, IN4
+
+//====================
+//      KEYPAD
+//====================
+#include <Keypad.h>
+const byte ROWS = 4;
+const byte COLS = 3;
+char keys[ROWS][COLS] = {
+{'1','2','3'},
+{'4','5','6'},
+{'7','8','9'},
+{'*','0','#'}
+};
+byte rowPins[ROWS] = {A0, A1, A2, A3};
+byte colPins[COLS] = {7,6,24};
+Keypad keypad = Keypad( makeKeymap(keys), rowPins,
+colPins, ROWS, COLS );
+
+void setup() {
+
+  myStepper.setSpeed(60);
+  Serial.begin(9600);
+  
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+  
+  // Setting frequency-scaling to 20%
+  digitalWrite(S0,HIGH);
+  digitalWrite(S1,HIGH);
+
+  lcd.init();                      // initialize the lcd 
+  lcd.init();
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setCursor(3, 0);
+  lcd.print("Watermelon");
+  lcd.setCursor(1, 1);
+  lcd.print("Color Detector");
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(2,0);
+  lcd.print("*** Using ***");
+  lcd.setCursor(1,1);
+  lcd.print(">>> Arduino <<<");
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(2,0);
+  lcd.print("Press key * ");
+  lcd.setCursor(3,1);
+  lcd.print("to start");
+  
+  
+  Serial.begin(9600);
+
+  
+}
+
+
+
+void loop() {
+
+        char key = keypad.getKey();
+
+        if (key == '*')
+        {
+          delay(1000);
+          myStepper.step(angle / 4);
+          RGB();
+          delay(1000);
+
+          
+          myStepper.step(angle / 3.6);
+          RGB1();
+          delay(1000);
+
+          
+          myStepper.step(angle / 3);
+          RGB2();
+          delay(1000);
+
+          myStepper.step(angle / 2.4);
+          RGB3();
+          delay(1000);
+
+          myStepper.step(angle / 2);
+          RGB4();
+          delay(1000);
+
+          myStepper.step(angle / 1.5);
+          RGB5();
+          delay(1000);
+
+          myStepper.step(angle / 1.1);
+          RGB6();
+          delay(1000);
+
+          myStepper.step(angle);
+          RGB7();
+          delay(1000);
+
+          average();
+
+          delay(300);
+          result();
+      
+                 
+        }
+        else if(key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' || key == '8' || key == '9' || key == '0' || key == '#')
+        {
+          lcd.clear();
+          delay(1000);
+          lcd.setCursor(4,0);
+          lcd.print("Error!");
+          lcd.setCursor(2,1);
+          lcd.print("Wrong Input");
+          delay(1000);
+          setup();
+        }
+  
+}
+
+
+void RGB()
+{
+      color();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue);
+      delay(700);
+      lcd.clear();
+}
+
+
+
+void RGB1()
+{
+      color1();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red1);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green1);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue1);
+      delay(700);
+      lcd.clear();
+}
+
+void RGB2()
+{
+      color2();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red2);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green2);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue2);
+      delay(700);
+      lcd.clear();
+}
+
+
+void RGB3()
+{
+      color3();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red3);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green3);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue3);
+      delay(700);
+      lcd.clear();
+}
+
+
+void RGB4()
+{
+      color4();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red4);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green4);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue4);
+      delay(700);
+      lcd.clear();
+}
+
+
+void RGB5()
+{
+      color5();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red5);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green5);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue5);
+      delay(700);
+      lcd.clear();
+}
+
+
+void RGB6()
+{
+      color6();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red6);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green6);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue6);
+      delay(700);
+      lcd.clear();
+}
+
+
+void RGB7()
+{
+      color7();
+      
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Initializing...");
+      delay(4000);
+      lcd.clear();
+      
+      lcd.setCursor(0,0);
+      lcd.print("R=");
+      lcd.print(red7);
+      delay(700);
+      lcd.setCursor(6,0);
+      lcd.print("G=");
+      lcd.print(green7);
+      delay(700);
+      lcd.setCursor(0,1);
+      lcd.print("B=");
+      lcd.print(blue7);
+      delay(700);
+      lcd.clear();
+}
+
+
+
+void color()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red = map(red, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green = map(green, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue = map(blue, 25,70,255,0);
+  delay(100);
+}
+
+void color1()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red1 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red1 = map(red1, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green1 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green1 = map(green1, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue1 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue1 = map(blue1, 25,70,255,0);
+  delay(100);
+}
+
+void color2()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red2 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red2 = map(red2, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green2 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green2 = map(green2, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue2 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue2 = map(blue2, 25,70,255,0);
+  delay(100);
+}
+
+
+void color3()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red3 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red3 = map(red3, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green3 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green3 = map(green3, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue3 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue3 = map(blue3, 25,70,255,0);
+  delay(100);
+}
+
+
+void color4()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red4 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red4 = map(red4, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green4 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green4 = map(green4, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue4 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue4 = map(blue4, 25,70,255,0);
+  delay(100);
+}
+
+
+void color5()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red5 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red5 = map(red5, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green5 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green5 = map(green5, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue5 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue5 = map(blue5, 25,70,255,0);
+  delay(100);
+}
+
+
+void color6()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red6 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red6 = map(red6, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green6 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green6 = map(green6, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue6 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue6 = map(blue6, 25,70,255,0);
+  delay(100);
+}
+
+
+void color7()
+{
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,LOW);
+  // Reading the output frequency
+  red7 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  red7 = map(red7, 25,70,255,0);
+  delay(100);
+  
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2,LOW);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  green7 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  green7 = map(green7, 25,70,255,0);
+  delay(100);
+  
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+  // Reading the output frequency
+  blue7 = pulseIn(sensorOut, LOW);
+  //Remaping the value of the frequency to the RGB Model of 0 to 255
+  blue7 = map(blue7, 25,70,255,0);
+  delay(100);
+}
+
+void average()
+{
+          redAve = (red+red1+red2+red3+red4+red5+red6+red7) / 8;
+          greenAve = (green+green1+green2+green3+green4+green5+green6+green7) / 8;
+          blueAve = (blue+blue1+blue2+blue3+blue4+blue5+blue6+blue7) / 8;
+
+
+          delay(1000);
+          lcd.setCursor(4,0);
+          lcd.print("Average");
+          delay(1000);
+          lcd.clear();
+          lcd.setCursor(0,0);
+          lcd.print("Red=");
+          lcd.print(redAve);
+          delay(1000);
+          lcd.setCursor(7,0);
+          lcd.print("Green=");
+          lcd.print(greenAve);
+          delay(1000);
+          lcd.setCursor(1,1);
+          lcd.print("Blue=");
+          lcd.print(blueAve);
+          delay(1000);
+          lcd.clear();
+}
+
+void result()
+{
+
+    if((redAve >= 210 && redAve <= 283) && (greenAve >= 227 && greenAve <= 266) && (blueAve >= 187 && blueAve <= 260))
+        {
+          delay(1000);
+          lcd.setCursor(2,0);
+          lcd.print("Ripeness Level");
+          lcd.setCursor(5,1);
+          lcd.print("Ripe");
+          delay(1000);
+        }
+    else if((redAve >= 199 && redAve <= 210) && (greenAve >= 221 && greenAve <= 277) && (blueAve >= 176 && blueAve <= 227))
+        {
+          delay(1000);
+          lcd.setCursor(2,0);
+          lcd.print("Ripeness Level");
+          lcd.setCursor(5,1);
+          lcd.print("Unripe");
+          delay(1000);
+        }
+        else
+        {
+          delay(1000);
+          lcd.setCursor(1,0);
+          lcd.print("Out of range");
+          
+        } 
+}
